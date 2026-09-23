@@ -437,7 +437,7 @@ You can keep the key.`;
       else await cloud.col.doc(id).delete();
       setStatus();
     } catch (e) {
-      setStatus(e && e.code === 'quota_exceeded' ? 'account is full; back up and delete old pages' : 'saved on this device; account save failed');
+      setStatus(e && e.code === 'quota_exceeded' ? 'Claude storage is full; back up and delete old pages' : 'saved on this device; the Claude save failed');
     } finally {
       cloud.inflight.set(id, false);
       if (cloud.again.delete(id)) writeNow(id);
@@ -449,7 +449,7 @@ You can keep the key.`;
     if (msg) { el.textContent = msg; return; }
     if (!state.lex && !state.lexFailed) el.textContent = 'reading the dictionary';
     else if (state.lexFailed) el.textContent = 'dictionary missing; text only';
-    else el.textContent = state.cloud === 'account' ? 'saved to your account' : 'saved in this browser';
+    else el.textContent = state.cloud === 'account' ? 'saved to your Claude account' : 'saved in this browser';
   }
 
   function touch(field, value) {
@@ -1023,8 +1023,8 @@ You can keep the key.`;
       </li>`;
     }).join('');
     const where = state.cloud === 'account'
-      ? 'Pages save to your claude.ai account, private to you, on every device you open this from.'
-      : 'Pages save in this browser only. Back them up to keep them.';
+      ? 'Pages save to the Claude account you are signed in with, private to you, on any device where you open this page. Understory has no accounts of its own.'
+      : 'Pages save in this browser only. There is no account; back them up to keep them.';
     let grav = '';
     if (state.lex && state.pages.size) {
       const g = E.gravity(state.lex, [...state.pages.values()].filter((x) => !x.example)).slice(0, 14);
@@ -1065,7 +1065,7 @@ You can keep the key.`;
         <button class="btn" type="button" data-act="restore">restore a backup</button>
       </div>
       <h3>what it reads with</h3>
-      <p class="src">${SOURCES.cmu} Carnegie Mellon University, BSD-style licence. ${SOURCES.conc} ${SOURCES.lanc} Rhyme ladder and the seven senses: Pat Pattison. Nothing you write leaves this page except to your own account.</p>`;
+      <p class="src">${SOURCES.cmu} Carnegie Mellon University, BSD-style licence. ${SOURCES.conc} ${SOURCES.lanc} Rhyme ladder and the seven senses: Pat Pattison. ${state.cloud === 'account' ? 'Nothing you write leaves this page except to your own Claude account.' : 'Nothing you write leaves this browser.'}</p>`;
     openSheet('pages', html, true);
     void p;
   }

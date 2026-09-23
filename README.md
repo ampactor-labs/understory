@@ -98,13 +98,19 @@ no `<html>` or `<head>`, which the Artifact host supplies. `build.sh` wraps
 it in a real document with a manifest, icons, and a service worker for the
 hosted copy.
 
-- **ampactor.dev/understory** saves pages in the browser (`localStorage`) and
-  works offline after the first visit. Back up from the pages drawer.
+Understory has no accounts of its own. Where pages are kept depends on
+which copy is open:
+
+- **ampactor.dev/understory** has no sign-in. It saves pages in the browser
+  (`localStorage`) and works offline after the first visit. Back up from the
+  pages drawer.
 - **The Artifact copy** (private, https://claude.ai/artifact/C6Rb7rK4CGtppYrJF5cCXS)
-  is the same file with `engine.js` and both word lists as its files. It
-  saves each viewer's pages to their own account through the Artifact's `db`
-  and `user` capabilities, and saves files through `downloads`. Republishing
-  it means passing that URL as `url`, or a second artifact appears.
+  is the same file with `engine.js` and both word lists as its files. Opened
+  on claude.ai, it saves each viewer's pages under the Claude account they
+  are signed in with, through the Artifact's `db` and `user` capabilities,
+  so the pages follow them to any device; files save through `downloads`.
+  Republishing it means passing that URL as `url`, or a second artifact
+  appears.
 
 ## Weak spots
 
