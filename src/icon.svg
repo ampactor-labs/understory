@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Above the ground: the stress lane of "I won't hurt you", light HEAVY HEAVY light. -->
+  <!-- Below it: one firefly, the understory surfacing. -->
+  <rect width="512" height="512" fill="#0e1411"/>
+  <circle cx="148" cy="204" r="13" fill="#7dc59f" opacity=".75"/>
+  <circle cx="214" cy="204" r="27" fill="#7dc59f"/>
+  <circle cx="298" cy="204" r="27" fill="#7dc59f"/>
+  <circle cx="364" cy="204" r="13" fill="#7dc59f" opacity=".75"/>
+  <rect x="104" y="266" width="304" height="10" rx="5" fill="#e1e8e3"/>
+  <circle cx="256" cy="352" r="60" fill="#f2c94c" opacity=".16"/>
+  <circle cx="256" cy="352" r="28" fill="#f2c94c"/>
+</svg>

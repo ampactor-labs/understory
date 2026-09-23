@@ -1,0 +1,1352 @@
+<title>Understory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..500&display=swap">
+<style>
+:root {
+  --paper: #edf0ea;
+  --paper-2: #e3e8e1;
+  --soil: #d6ddd3;
+  --soil-ink: #3d4a43;
+  --ink: #17201b;
+  --ink-2: #526058;
+  --ink-3: #85928a;
+  --rule: #c5cec6;
+  --fern: #2d6a4b;
+  --fern-2: #6f9b83;
+  --fern-wash: rgba(45, 106, 75, .11);
+  --firefly: #8a5f00;
+  --glow: #e2ad24;
+  --glow-wash: rgba(226, 173, 36, .32);
+  --sheet: #f7f9f5;
+  --scrim: rgba(18, 26, 22, .28);
+  --shadow: 0 -12px 32px rgba(18, 30, 24, .16);
+  --serif: 'Newsreader', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  --mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  --dock-h: 60px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #0e1411;
+    --paper-2: #151d18;
+    --soil: #080c0a;
+    --soil-ink: #a9b8af;
+    --ink: #e1e8e3;
+    --ink-2: #9dafa5;
+    --ink-3: #697a70;
+    --rule: #25302a;
+    --fern: #7dc59f;
+    --fern-2: #4b8565;
+    --fern-wash: rgba(125, 197, 159, .13);
+    --firefly: #f2c94c;
+    --glow: #f2c94c;
+    --glow-wash: rgba(242, 201, 76, .22);
+    --sheet: #131b17;
+    --scrim: rgba(0, 0, 0, .5);
+    --shadow: 0 -12px 32px rgba(0, 0, 0, .5);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #0e1411;
+  --paper-2: #151d18;
+  --soil: #080c0a;
+  --soil-ink: #a9b8af;
+  --ink: #e1e8e3;
+  --ink-2: #9dafa5;
+  --ink-3: #697a70;
+  --rule: #25302a;
+  --fern: #7dc59f;
+  --fern-2: #4b8565;
+  --fern-wash: rgba(125, 197, 159, .13);
+  --firefly: #f2c94c;
+  --glow: #f2c94c;
+  --glow-wash: rgba(242, 201, 76, .22);
+  --sheet: #131b17;
+  --scrim: rgba(0, 0, 0, .5);
+  --shadow: 0 -12px 32px rgba(0, 0, 0, .5);
+}
+
+* { box-sizing: border-box; }
+html, body { background: var(--paper); color: var(--ink); }
+body { font-family: var(--serif); font-size: 17px; line-height: 1.5; -webkit-text-size-adjust: 100%; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--fern); outline-offset: 2px; border-radius: 3px;
+}
+.mono, .label { font-family: var(--mono); }
+.label { font-size: 10.5px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-3); }
+
+.wrap { max-width: 680px; margin: 0 auto; padding-inline: 16px; padding-block: 0 calc(var(--dock-h) + 28px + env(safe-area-inset-bottom, 0px)); }
+
+/* ---------------------------------------------------------------- header */
+.top {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--paper); padding-block: 12px 10px; border-bottom: 1px solid var(--rule);
+  display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 4px 12px;
+}
+.top .label { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 12px; }
+#status { text-transform: none; letter-spacing: .02em; }
+#title {
+  font-family: var(--serif); font-size: 26px; font-weight: 500; font-optical-sizing: auto;
+  line-height: 1.15; color: var(--ink); background: none; border: 0; padding: 0; width: 100%;
+  grid-column: 1 / -1; letter-spacing: -.005em;
+}
+#title::placeholder { color: var(--ink-3); font-style: italic; }
+.hint { font-size: 14px; font-style: italic; color: var(--ink-2); margin: 10px 0 0; }
+
+/* ----------------------------------------------------------- lines view */
+.stanza { padding-block: 14px 4px; }
+.stanza + .stanza { border-top: 1px dashed var(--rule); }
+.ln { display: grid; grid-template-columns: 22px minmax(0, 1fr) 38px; gap: 8px; align-items: start; padding-block: 3px; }
+.ln.mirror { background: var(--fern-wash); border-radius: 4px; }
+.gut { display: flex; align-items: flex-start; gap: 4px; padding-top: 5px; }
+.tick { width: 4px; height: 20px; border-radius: 2px; background: var(--rule); position: relative; flex: none; }
+.tick i { position: absolute; left: -1px; width: 6px; height: 6px; border-radius: 50%; background: var(--ink-2); bottom: calc(var(--y) * 14px); }
+.tick.none i { display: none; }
+.act { font-family: var(--mono); font-size: 12px; font-weight: 500; line-height: 20px; width: 12px; text-align: center; color: var(--ink-3); }
+.act.question, .act.promise, .act.plea { color: var(--fern); }
+.txt { font-size: 17.5px; line-height: 1.35; overflow-wrap: anywhere; }
+.w { display: inline-flex; flex-direction: column; align-items: center; vertical-align: top; border-radius: 3px; padding-inline: 1px; }
+.w > span:first-child { white-space: nowrap; }
+.dots { display: flex; gap: 3px; height: 9px; align-items: center; justify-content: center; }
+.dots i { width: 3px; height: 3px; border-radius: 50%; background: var(--ink-3); opacity: .7; }
+.dots i.S { width: 6px; height: 6px; background: var(--fern); opacity: 1; }
+.dots i.s { width: 5px; height: 5px; background: none; border: 1.5px solid var(--fern); opacity: 1; }
+.resp { font-family: var(--mono); font-size: 9.5px; line-height: 12px; color: var(--ink-3); letter-spacing: .02em; white-space: nowrap; }
+.resp b { color: var(--ink-2); font-weight: 500; }
+.resp.tail b, .resp .tail { color: var(--fern); font-weight: 500; }
+.w.surf { background: var(--glow-wash); box-shadow: 0 2px 0 var(--glow); }
+.w.surf.denied { background: transparent; box-shadow: none; outline: 1.5px dashed var(--glow); outline-offset: 1px; }
+.surf-list .tag { margin-left: 8px; }
+.w.foll > span:first-child { text-decoration: underline; text-decoration-color: var(--glow); text-decoration-thickness: 3px; text-underline-offset: 4px; }
+.plain { white-space: pre-wrap; }
+.right { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; padding-top: 4px; }
+.sch { font-family: var(--mono); font-size: 11px; font-weight: 500; min-width: 18px; text-align: center; border-radius: 3px; padding: 1px 3px; color: var(--ink-3); }
+.sch.perfect { color: var(--paper); background: var(--fern); }
+.sch.family, .sch.additive { color: var(--fern); box-shadow: inset 0 0 0 1.5px var(--fern); }
+.sch.assonance, .sch.consonance, .sch.identity { color: var(--fern); box-shadow: inset 0 0 0 1.5px var(--fern-2); border-style: dashed; }
+.sch.same { color: var(--ink-2); box-shadow: inset 0 0 0 1px var(--rule); }
+.spec { display: flex; gap: 1.5px; align-items: flex-end; height: 14px; padding: 0 1px; }
+.spec i { width: 3px; background: var(--fern); border-radius: 1px; min-height: 1px; opacity: .9; }
+.refmark { font-family: var(--mono); font-size: 10px; color: var(--fern); margin-right: 5px; }
+.empty-note { color: var(--ink-2); font-style: italic; padding-block: 24px; }
+
+/* ----------------------------------------------------------- shape view */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; padding-block: 14px 10px; }
+.chip { font-family: var(--mono); font-size: 11px; padding: 4px 8px; border-radius: 999px; border: 1px solid var(--rule); color: var(--ink-2); background: var(--paper); }
+.chip b { color: var(--ink); font-weight: 500; }
+.chip.lit { border-color: var(--glow); background: var(--glow-wash); color: var(--ink); }
+.shape { position: relative; }
+.shape-head, .row { display: grid; grid-template-columns: 22px 64px 68px 18px minmax(0, 1fr); gap: 8px; align-items: center; }
+.shape-head { align-items: end; padding-bottom: 6px; border-bottom: 1px solid var(--rule); margin-bottom: 4px; }
+.shape-head .label { font-size: 9px; letter-spacing: .06em; }
+.vlabels { display: grid; grid-template-columns: repeat(7, 8px); gap: 2px; height: 44px; }
+.vlabels span { writing-mode: vertical-rl; transform: rotate(180deg); font-family: var(--mono); font-size: 8.5px; color: var(--ink-3); text-align: left; letter-spacing: .03em; }
+.row { height: 24px; width: 100%; text-align: left; border-radius: 3px; }
+.row:hover { background: var(--fern-wash); }
+.row.mirror { background: var(--fern-wash); }
+.gap { height: 12px; }
+.num { font-family: var(--mono); font-size: 10px; color: var(--ink-3); text-align: right; }
+.track { position: relative; height: 24px; }
+.track::before { content: ''; position: absolute; left: 0; right: 0; top: 11.5px; height: 1px; background: var(--rule); }
+.track i { position: absolute; top: 9px; width: 7px; height: 7px; margin-left: -3.5px; border-radius: 50%; background: var(--ink); z-index: 1; }
+.cells { display: grid; grid-template-columns: repeat(7, 8px); gap: 2px; height: 14px; }
+.cells i { background: var(--fern); border-radius: 1.5px; opacity: calc(.06 + var(--v) * .94); }
+.snip { font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--ink-2); }
+.snip.ref { font-style: italic; color: var(--ink); }
+.snip .fly { color: var(--firefly); }
+.contour { position: absolute; left: 30px; top: 0; width: 64px; pointer-events: none; overflow: visible; }
+.contour polyline { fill: none; stroke: var(--ink-3); stroke-width: 1.2; stroke-linejoin: round; }
+.axis { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 8.5px; color: var(--ink-3); }
+
+/* ---------------------------------------------------------- write view */
+.write { padding-block: 14px 6px; }
+#lyric, #under {
+  width: 100%; resize: vertical; border: 1px solid var(--rule); border-radius: 6px;
+  background: var(--paper); color: var(--ink); font-family: var(--serif); padding: 12px 12px;
+}
+#lyric { font-size: 18px; line-height: 1.6; min-height: 52vh; white-space: pre-wrap; }
+#lyric::placeholder, #under::placeholder { color: var(--ink-3); font-style: italic; }
+.strip { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; padding-block: 8px 0; }
+.spark { display: inline-flex; gap: 2px; align-items: flex-end; height: 16px; vertical-align: middle; }
+.spark i { width: 4px; background: var(--ink-3); border-radius: 1px; }
+
+/* ---------------------------------------------------- ground and soil */
+.ground { display: flex; align-items: center; gap: 10px; margin-top: 18px; }
+.ground::after { content: ''; flex: 1; height: 2px; background: var(--ink); opacity: .7; }
+.soil { background: var(--soil); color: var(--soil-ink); padding: 14px 14px 18px; border-radius: 0 0 8px 8px; }
+.soil .row2 { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.buried { font-style: italic; font-size: 17px; color: var(--soil-ink); margin: 10px 0 0; }
+.buried.hidden { filter: blur(5px); user-select: none; }
+.soil button.link { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--fern); padding: 4px 0; }
+.surf-list { margin: 10px 0 0; padding: 0; list-style: none; font-size: 14.5px; }
+.surf-list li { padding-block: 2px; }
+.surf-list mark { background: var(--glow-wash); color: inherit; box-shadow: 0 2px 0 var(--glow); padding-inline: 2px; }
+#under { margin-top: 10px; font-size: 16.5px; font-style: italic; min-height: 76px; background: var(--paper); }
+
+/* ------------------------------------------------------------------ dock */
+.dock {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--paper);
+  border-top: 1px solid var(--rule); padding: 8px 16px calc(8px + env(safe-area-inset-bottom, 0px));
+}
+.dock-in { max-width: 680px; margin: 0 auto; display: flex; gap: 10px; align-items: center; justify-content: space-between; }
+.dock button { font-family: var(--mono); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; padding: 10px 12px; border-radius: 6px; min-height: 42px; }
+#modeBtn { background: var(--ink); color: var(--paper); min-width: 74px; }
+.zoom { display: flex; border: 1px solid var(--rule); border-radius: 7px; padding: 2px; }
+.zoom button { padding: 8px 9px; min-height: 36px; color: var(--ink-2); }
+.zoom button[aria-pressed="true"] { background: var(--fern-wash); color: var(--fern); font-weight: 500; }
+#pagesBtn { color: var(--ink-2); }
+
+/* ------------------------------------------------------ sheets and toast */
+.scrim { position: fixed; inset: 0; background: var(--scrim); z-index: 20; }
+.sheet {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 21; background: var(--sheet); box-shadow: var(--shadow);
+  border-radius: 14px 14px 0 0; max-height: 72vh; overflow-y: auto; overscroll-behavior: contain;
+  padding: 8px 16px calc(20px + env(safe-area-inset-bottom, 0px));
+  animation: rise .18s ease-out;
+}
+.sheet.tall { max-height: 90vh; }
+.sheet-in { max-width: 640px; margin: 0 auto; }
+.grab { width: 36px; height: 4px; border-radius: 2px; background: var(--rule); margin: 4px auto 10px; }
+.sheet-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.x { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); padding: 8px 4px; }
+.sheet h2 { font-size: 24px; font-weight: 500; line-height: 1.2; margin: 6px 0 4px; text-wrap: balance; }
+.sheet h3 { font-family: var(--mono); font-size: 10.5px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-3); font-weight: 400; margin: 18px 0 6px; }
+.sheet p { margin: 6px 0; max-width: 60ch; }
+.sheet .quiet { color: var(--ink-2); font-size: 15px; }
+.sheet .src { font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); margin-top: 14px; line-height: 1.5; }
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: 3px 12px; font-family: var(--mono); font-size: 12px; }
+.kv dt { color: var(--ink-3); }
+.kv dd { margin: 0; color: var(--ink); overflow-wrap: anywhere; }
+.bars { display: grid; grid-template-columns: 52px 1fr 64px; gap: 4px 10px; align-items: center; font-family: var(--mono); font-size: 11.5px; }
+.bars .bar { height: 7px; background: var(--rule); border-radius: 4px; overflow: hidden; }
+.bars .bar i { display: block; height: 100%; background: var(--fern); border-radius: 4px; }
+.bars .who { color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ladder { list-style: none; padding: 0; margin: 6px 0; display: grid; gap: 3px; }
+.ladder li { font-size: 14.5px; padding: 5px 9px; border-radius: 5px; color: var(--ink-2); display: grid; grid-template-columns: 96px 1fr; gap: 10px; }
+.ladder li b { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: .04em; color: var(--ink-2); padding-top: 2px; }
+.ladder li.on { background: var(--fern-wash); color: var(--ink); }
+.ladder li.on b { color: var(--fern); }
+.floor { border-left: 2px solid var(--rule); padding: 4px 0 4px 12px; margin: 10px 0; }
+.floor .under { color: var(--ink-2); font-style: italic; font-size: 15px; }
+.floor .ref { font-weight: 500; }
+.scale { position: relative; height: 22px; margin: 8px 0 2px; }
+.scale::before { content: ''; position: absolute; left: 0; right: 0; top: 10px; height: 2px; background: var(--rule); }
+.scale i { position: absolute; top: 5px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: var(--fern); }
+.scale-ends { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--ink-3); }
+.btn { font-family: var(--mono); font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; border: 1px solid var(--rule); border-radius: 6px; padding: 9px 12px; min-height: 40px; color: var(--ink); background: var(--paper); }
+.btn.solid { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.btn.warn { border-color: var(--firefly); color: var(--firefly); }
+.btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.pages { list-style: none; margin: 0; padding: 0; }
+.pages li { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; border-bottom: 1px solid var(--rule); }
+.pages li > button:first-child { text-align: left; padding: 10px 0; }
+.pages .t { font-size: 17px; font-weight: 500; display: block; }
+.pages .f { font-size: 14px; color: var(--ink-2); font-style: italic; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 62vw; }
+.pages .cur .t::before { content: '\25B8  '; color: var(--fern); }
+.tag { font-family: var(--mono); font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin-left: 6px; }
+.grav { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; font-size: 15px; }
+.grav button { text-align: left; }
+.grav .n { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.flipper { display: flex; flex-wrap: wrap; gap: 6px; }
+.preview { white-space: pre-wrap; font-size: 16px; line-height: 1.5; border: 1px solid var(--rule); border-radius: 6px; padding: 10px 12px; margin-top: 10px; max-height: 38vh; overflow: auto; background: var(--paper); }
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 30;
+  bottom: calc(var(--dock-h) + 18px + env(safe-area-inset-bottom, 0px));
+  background: var(--ink); color: var(--paper); font-family: var(--mono); font-size: 12px; border-radius: 7px;
+  padding: 9px 12px; display: flex; gap: 12px; align-items: center; max-width: calc(100vw - 32px);
+}
+.toast button { color: var(--glow); font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+.fallback-copy { width: 100%; min-height: 120px; font-family: var(--mono); font-size: 12px; margin-top: 8px; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@keyframes rise { from { transform: translateY(24px); opacity: .6; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .sheet { animation: none; } }
+@media (min-width: 560px) {
+  .txt { font-size: 19px; }
+  .ln { grid-template-columns: 24px minmax(0, 1fr) 44px; gap: 12px; }
+  .shape-head, .row { grid-template-columns: 26px 110px 68px 20px minmax(0, 1fr); gap: 12px; }
+  .contour { left: 38px; width: 110px; }
+}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="label"><span>understory</span><span id="status">reading the dictionary</span></div>
+    <input id="title" type="text" autocomplete="off" spellcheck="false" aria-label="Page title" placeholder="untitled">
+  </header>
+  <p class="hint" id="hint" hidden>Tap any mark to see what it's made of.</p>
+
+  <main id="main" aria-live="off"></main>
+
+  <div class="ground"><span class="label">ground</span></div>
+  <section class="soil" id="soil" aria-label="The understory"></section>
+</div>
+
+<nav class="dock" aria-label="Instrument">
+  <div class="dock-in">
+    <button id="modeBtn" type="button">write</button>
+    <div class="zoom" role="group" aria-label="Zoom">
+      <button type="button" data-z="shape" aria-pressed="false">shape</button>
+      <button type="button" data-z="lines" aria-pressed="true">lines</button>
+      <button type="button" data-z="sounds" aria-pressed="false">sounds</button>
+    </div>
+    <button id="pagesBtn" type="button">pages</button>
+  </div>
+</nav>
+
+<div class="scrim" id="scrim" hidden></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" hidden>
+  <div class="sheet-in">
+    <div class="grab"></div>
+    <div class="sheet-top"><span class="label" id="sheetKind"></span><button class="x" id="sheetClose" type="button">close</button></div>
+    <div id="sheetBody"></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+<input type="file" id="fileRestore" accept=".json,application/json" class="visually-hidden" tabindex="-1" aria-hidden="true">
+<input type="file" id="fileImport" accept=".txt,.md,.cho,text/plain,text/markdown" class="visually-hidden" tabindex="-1" aria-hidden="true">
+
+<script src="engine.js"></script>
+<script>
+(() => {
+  'use strict';
+  const E = window.UnderstoryEngine;
+  const $ = (s, r = document) => r.querySelector(s);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const SENSES = E.SENSES;
+
+  // ------------------------------------------------------------ the example
+  // Written for this instrument so the first look has something under it.
+  // It is an example, not yours: delete it whenever.
+  const EXAMPLE_TEXT = `Brass, and bent a little at the tip,
+warm from riding in my coat all day.
+You turned it over like a word you couldn't say.
+You can keep the key.
+
+Three a.m., the deadbolt turning slow.
+I count the turns and keep my eyes shut tight.
+Where'd you learn to be that quiet in the night?
+You can keep the key.
+
+The porch light's on, a lie I tell the moths.
+Maybe trust is just a habit with a name.
+The lock is still the lock. The frame is still the frame.
+You can keep the key.`;
+  const makeExample = () => ({
+    id: 'p-example', title: 'Spare Key', text: EXAMPLE_TEXT,
+    under: "I think you're already gone.", follow: ['key'], example: true,
+    created: Date.now(), updated: Date.now(),
+  });
+
+  // ----------------------------------------------------------------- state
+  const state = {
+    pages: new Map(), current: null, mode: 'see', zoom: 'lines',
+    lex: null, lexFailed: false, a: null, underOpen: false, mirrorOf: null,
+    editingAt: 0, cloud: 'local', downloads: null,
+  };
+  const LS_PAGES = 'understory.pages.v1';
+  const LS_UI = 'understory.ui.v1';
+  const LS_HINT = 'understory.hint.v1';
+  const lsGet = (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } };
+  const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* private mode */ } };
+
+  const page = () => state.pages.get(state.current);
+  const newId = () => 'p-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const clean = (p) => ({
+    id: String(p.id), title: String(p.title ?? ''), text: String(p.text ?? ''), under: String(p.under ?? ''),
+    follow: Array.isArray(p.follow) ? p.follow.map(String).slice(0, 40) : [],
+    example: !!p.example, created: +p.created || Date.now(), updated: +p.updated || Date.now(),
+  });
+  const ordered = () => [...state.pages.values()].sort((a, b) => b.updated - a.updated);
+
+  function saveLocal() {
+    lsSet(LS_PAGES, { pages: [...state.pages.values()] });
+    lsSet(LS_UI, { current: state.current, zoom: state.zoom });
+  }
+
+  // ------------------------------------------------------------ the cloud
+  // Pages live in the viewer's private subtree when claude.ai offers one;
+  // otherwise in this browser, with a backup file as the bridge.
+  const cloud = { col: null, timers: new Map(), inflight: new Map(), again: new Set() };
+
+  async function connectCloud() {
+    if (!window.claude || typeof window.claude.use !== 'function') { setStatus(); return; }
+    try {
+      const [db, user, downloads] = await Promise.all([
+        window.claude.use('db'), window.claude.use('user'), window.claude.use('downloads'),
+      ]);
+      state.downloads = downloads || null;
+      if (!db || !user) { setStatus(); return; }
+      const uid = await user.id();
+      if (!uid) { setStatus(); return; }
+      cloud.col = db.collection('data/users/' + uid);
+      const snap = await cloud.col.get();
+      const remote = new Map();
+      snap.docs.forEach((d) => { const body = d.data(); if (body && d.id.startsWith('p-')) remote.set(d.id, clean({ ...body, id: d.id })); });
+      // Newer copy wins; anything only local goes up.
+      for (const [id, rp] of remote) {
+        const lp = state.pages.get(id);
+        if (!lp || rp.updated >= lp.updated) state.pages.set(id, rp);
+      }
+      for (const [id, lp] of state.pages) {
+        const rp = remote.get(id);
+        if (!rp || lp.updated > rp.updated) queueWrite(id, 0);
+      }
+      state.cloud = 'account';
+      if (!state.pages.has(state.current)) state.current = ordered()[0]?.id;
+      saveLocal();
+      reanalyze();
+      renderAll();
+      cloud.col.onSnapshot((qs) => {
+        if (qs.metadata.hasPendingWrites) return;
+        let touched = false;
+        for (const ch of qs.docChanges()) {
+          const id = ch.doc.id;
+          if (!id.startsWith('p-')) continue;
+          if (ch.type === 'removed') {
+            if (state.pages.has(id) && id !== state.current) { state.pages.delete(id); touched = true; }
+            continue;
+          }
+          const rp = clean({ ...ch.doc.data(), id });
+          const lp = state.pages.get(id);
+          const busy = id === state.current && Date.now() - state.editingAt < 4000;
+          if (!busy && (!lp || rp.updated > lp.updated)) { state.pages.set(id, rp); touched = true; }
+        }
+        if (touched) { saveLocal(); reanalyze(); renderAll(); }
+      }, () => { state.cloud = 'local'; setStatus(); });
+    } catch {
+      state.cloud = 'local';
+    }
+    setStatus();
+  }
+
+  function queueWrite(id, delay = 700) {
+    if (!cloud.col) return;
+    clearTimeout(cloud.timers.get(id));
+    cloud.timers.set(id, setTimeout(() => writeNow(id), delay));
+  }
+  async function writeNow(id) {
+    if (cloud.inflight.get(id)) { cloud.again.add(id); return; }
+    const p = state.pages.get(id);
+    cloud.inflight.set(id, true);
+    setStatus('saving');
+    try {
+      if (p) await cloud.col.doc(id).set({ ...p });
+      else await cloud.col.doc(id).delete();
+      setStatus();
+    } catch (e) {
+      setStatus(e && e.code === 'quota_exceeded' ? 'account is full; back up and delete old pages' : 'saved on this device; account save failed');
+    } finally {
+      cloud.inflight.set(id, false);
+      if (cloud.again.delete(id)) writeNow(id);
+    }
+  }
+
+  function setStatus(msg) {
+    const el = $('#status');
+    if (msg) { el.textContent = msg; return; }
+    if (!state.lex && !state.lexFailed) el.textContent = 'reading the dictionary';
+    else if (state.lexFailed) el.textContent = 'dictionary missing; text only';
+    else el.textContent = state.cloud === 'account' ? 'saved to your account' : 'saved in this browser';
+  }
+
+  function touch(field, value) {
+    const p = page();
+    if (!p) return;
+    p[field] = value;
+    p.updated = Date.now();
+    if (p.example && (field === 'text' || field === 'title')) p.example = false;
+    state.editingAt = Date.now();
+    saveLocal();
+    queueWrite(p.id);
+  }
+
+  // -------------------------------------------------------------- analysis
+  function reanalyze() {
+    const p = page();
+    state.a = state.lex && p ? E.analyze(state.lex, p) : null;
+  }
+  let analyzeTimer = 0;
+  function reanalyzeSoon() {
+    clearTimeout(analyzeTimer);
+    analyzeTimer = setTimeout(() => { reanalyze(); renderStrip(); renderSoil(); }, 220);
+  }
+
+  async function loadLexicon() {
+    try {
+      const res = await fetch('lexicon.txt');
+      if (!res.ok) throw new Error(res.status);
+      state.lex = E.loadLexicon(E.createLexicon(), await res.text());
+    } catch {
+      state.lexFailed = true;
+    }
+    reanalyze();
+    renderAll();
+    setStatus();
+    if (!state.lex) return;
+    try {
+      const res = await fetch('lexicon-extra.txt');
+      if (res.ok) {
+        E.loadExtra(state.lex, await res.text());
+        reanalyze();
+        if (state.mode === 'see') renderMain();
+      }
+    } catch { /* names stay estimated from spelling */ }
+  }
+
+  // ---------------------------------------------------------------- render
+  function renderAll() {
+    const p = page();
+    const t = $('#title');
+    if (document.activeElement !== t) t.value = p ? p.title : '';
+    document.querySelectorAll('.zoom button').forEach((b) => b.setAttribute('aria-pressed', String(state.mode === 'see' && b.dataset.z === state.zoom)));
+    $('#modeBtn').textContent = state.mode === 'see' ? 'write' : 'see';
+    renderMain();
+    renderSoil();
+    setStatus();
+  }
+
+  function renderMain() {
+    const main = $('#main');
+    if (state.mode === 'write') { renderWrite(main); return; }
+    const p = page();
+    if (!p || !p.text.trim()) {
+      main.innerHTML = `<p class="empty-note">Nothing written on this page yet. Tap <b>write</b>.</p>`;
+      return;
+    }
+    if (!state.a) { main.innerHTML = renderPlain(p.text); return; }
+    if (state.zoom === 'shape') main.innerHTML = renderShape();
+    else main.innerHTML = renderLines(state.zoom === 'sounds');
+    if (state.zoom === 'shape') drawContour();
+  }
+
+  function renderPlain(text) {
+    return text.split(/\n\s*\n/).map((st) => `<div class="stanza">${st.split('\n').map((l) =>
+      `<div class="ln"><span></span><div class="txt plain">${esc(l)}</div><span></span></div>`).join('')}</div>`).join('');
+  }
+
+  const ACT_GLYPH = { question: '?', promise: '→', plea: '!', statement: '·' };
+
+  function renderLines(sounds) {
+    const a = state.a;
+    let html = '';
+    let open = false;
+    for (const l of a.lines) {
+      if (l.blank) { if (open) { html += '</div>'; open = false; } continue; }
+      if (!open) { html += '<div class="stanza">'; open = true; }
+      const alt = l.alt.value;
+      const mirror = state.mirrorOf != null && (state.mirrorOf === l.i || (a.lines[state.mirrorOf]?.mirrors || []).includes(l.i));
+      html += `<div class="ln${mirror ? ' mirror' : ''}" data-line="${l.i}">`;
+      html += `<div class="gut"><button class="tick${alt == null ? ' none' : ''}" style="--y:${alt ?? 0}" data-kind="alt" data-i="${l.i}" aria-label="Altitude of line ${l.i + 1}"><i></i></button>`;
+      html += `<button class="act ${l.voice.act}" data-kind="voice" data-i="${l.i}" aria-label="Voice of line ${l.i + 1}: ${l.voice.act}">${ACT_GLYPH[l.voice.act]}</button></div>`;
+      html += `<div class="txt">${l.refrain != null ? `<button class="refmark" data-kind="refrain" data-r="${l.refrain}" aria-label="Refrain">↺</button>` : ''}${wordsHTML(l, sounds)}</div>`;
+      const kind = l.rhymeClass || 'none';
+      const specBars = l.senses.vals.map((v) => `<i style="height:${Math.max(1, Math.round(v * 14))}px"></i>`).join('');
+      html += `<div class="right"><button class="sch ${l.scheme === 'x' ? '' : kind}" data-kind="rhyme" data-i="${l.i}" aria-label="Rhyme of line ${l.i + 1}">${esc(l.scheme)}</button>`;
+      html += `<button class="spec" data-kind="senses" data-i="${l.i}" aria-label="Senses of line ${l.i + 1}">${specBars}</button></div>`;
+      html += '</div>';
+    }
+    if (open) html += '</div>';
+    return html;
+  }
+
+  function wordsHTML(l, sounds) {
+    let out = '';
+    let at = 0;
+    const text = l.text;
+    const tail = new Set();
+    if (sounds && l.tail && l.rhymeClass && l.rhymeClass !== 'same') {
+      for (let k = l.words.indexOf(l.tail.key); k >= 0 && k < l.words.length; k++) tail.add(k);
+    }
+    l.words.forEach((w, k) => {
+      out += esc(text.slice(at, w.start));
+      at = w.end;
+      const cls = ['w'];
+      if (l.surfaced.includes(k)) cls.push(l.denied.includes(k) ? 'surf denied' : 'surf');
+      if (l.followed.includes(k)) cls.push('foll');
+      let under;
+      if (sounds) {
+        const said = w.info.phones ? E.respell(w.info.phones) : '?';
+        const r = w.info.fn && w.info.syll === 1 ? said.toLowerCase() : said;
+        under = `<span class="resp${tail.has(k) ? ' tail' : ''}">${tail.has(k) ? `<b>${esc(r)}</b>` : esc(r)}</span>`;
+      } else {
+        under = `<span class="dots">${w.info.stress.map((s) => `<i class="${s}"></i>`).join('')}</span>`;
+      }
+      out += `<button class="${cls.join(' ')}" data-kind="word" data-i="${l.i}" data-k="${k}"><span>${esc(w.t)}</span>${under}</button>`;
+    });
+    out += esc(text.slice(at));
+    return out;
+  }
+
+  const ROW = 24;
+  const GAP = 12;
+  function renderShape() {
+    const a = state.a;
+    const s = a.summary;
+    const chips = [];
+    chips.push(`<span class="chip"><b>${s.lines}</b> lines · <b>${a.stanzas}</b> stanzas</span>`);
+    const acts = Object.entries(s.counts).filter(([k, v]) => v && k !== 'statement').map(([k, v]) => `${v} ${k}${v > 1 ? 's' : ''}`);
+    if (acts.length) chips.push(`<button class="chip" data-kind="acts">${esc(acts.join(' · '))}</button>`);
+    const who = Object.entries(s.persons).sort((x, y) => y[1] - x[1]).map(([p, n]) => `${p} ${n}`);
+    if (who.length) chips.push(`<button class="chip" data-kind="who">who: ${esc(who.join(' · '))}${s.persons.I ? '' : (s.persons.you ? ' · no I' : '')}</button>`);
+    a.refrains.forEach((r) => {
+      const counts = r.turns.map((t) => t.count);
+      const detail = counts.some((c) => c > 1) ? ` (${counts.join('·')})` : '';
+      chips.push(`<button class="chip" data-kind="refrain" data-r="${r.id}">↺ ×${r.turns.length}${detail} “${esc(trim(r.text, 22))}”</button>`);
+    });
+    const kinds = Object.entries(s.kinds).sort((x, y) => E.RHYME_RANK[y[0]] - E.RHYME_RANK[x[0]]).map(([k, n]) => `${n} ${k}`);
+    if (kinds.length) chips.push(`<button class="chip" data-kind="ladder">${esc(kinds.join(' · '))}</button>`);
+    a.motifs.slice(0, 4).forEach((m) => chips.push(`<button class="chip" data-kind="motif" data-m="${esc(m.lemma)}">${esc(m.lemma)} ×${m.lines.length}</button>`));
+    if (a.surfaced.length) chips.push(`<button class="chip lit" data-kind="under">surfaced ×${a.surfaced.length}${deniedNote(a.surfaced)}</button>`);
+
+    let rows = '';
+    let y = 0;
+    const pts = [];
+    let prevBlank = false;
+    for (const l of a.lines) {
+      if (l.blank) { if (!prevBlank && y > 0) { rows += '<div class="gap"></div>'; y += GAP; } prevBlank = true; continue; }
+      prevBlank = false;
+      const alt = l.alt.value;
+      const mirror = state.mirrorOf != null && (state.mirrorOf === l.i || (a.lines[state.mirrorOf]?.mirrors || []).includes(l.i));
+      if (alt != null) pts.push([alt, y + ROW / 2]);
+      const cells = l.senses.vals.map((v) => `<i style="--v:${v.toFixed(2)}"></i>`).join('');
+      const fly = l.surfaced.length || l.followed.length;
+      rows += `<button class="row${mirror ? ' mirror' : ''}" data-kind="line" data-i="${l.i}">`;
+      rows += `<span class="num">${l.i + 1}</span>`;
+      rows += `<span class="track">${alt == null ? '' : `<i style="left:${(alt * 100).toFixed(1)}%"></i>`}</span>`;
+      rows += `<span class="cells">${cells}</span>`;
+      rows += `<span class="sch ${l.scheme === 'x' ? '' : (l.rhymeClass || '')}">${esc(l.scheme)}</span>`;
+      rows += `<span class="snip${l.refrain != null ? ' ref' : ''}">${fly ? '<span class="fly">● </span>' : ''}${ACT_GLYPH[l.voice.act] === '·' ? '' : `${ACT_GLYPH[l.voice.act]} `}${esc(l.text.trim())}</span>`;
+      rows += '</button>';
+      y += ROW;
+    }
+    state.contour = { pts, h: y };
+    const head = `<div class="shape-head">
+      <span></span>
+      <span><span class="axis"><span>ground</span><span>sky</span></span></span>
+      <span class="vlabels">${SENSES.map((s2) => `<span>${s2}</span>`).join('')}</span>
+      <span class="label"> </span>
+      <span class="label">line</span>
+    </div>`;
+    return `<div class="chips">${chips.join('')}</div>${head}<div class="shape" id="shape">${rows}<svg class="contour" id="contour" aria-hidden="true"></svg></div>`;
+  }
+
+  function drawContour() {
+    const svg = $('#contour');
+    const track = document.querySelector('.row .track');
+    if (!svg || !track || !state.contour) return;
+    const w = track.getBoundingClientRect().width;
+    const shape = $('#shape').getBoundingClientRect();
+    const left = track.getBoundingClientRect().left - shape.left;
+    svg.style.left = left + 'px';
+    svg.style.width = w + 'px';
+    svg.setAttribute('width', w);
+    svg.setAttribute('height', state.contour.h);
+    svg.setAttribute('viewBox', `0 0 ${w} ${state.contour.h}`);
+    svg.style.height = state.contour.h + 'px';
+    const pts = state.contour.pts.map(([x, yy]) => `${(x * w).toFixed(1)},${yy.toFixed(1)}`).join(' ');
+    svg.innerHTML = pts ? `<polyline points="${pts}"></polyline>` : '';
+  }
+
+  function renderWrite(main) {
+    const p = page();
+    main.innerHTML = `<div class="write">
+      <label class="visually-hidden" for="lyric">Lyric</label>
+      <textarea id="lyric" spellcheck="true" autocapitalize="sentences" placeholder="Start with something you could film.">${esc(p ? p.text : '')}</textarea>
+      <div class="strip label" id="strip"></div>
+    </div>`;
+    const ta = $('#lyric');
+    ta.addEventListener('input', () => { touch('text', ta.value); reanalyzeSoon(); });
+    renderStrip();
+  }
+
+  function renderStrip() {
+    const el = $('#strip');
+    if (!el) return;
+    const a = state.a;
+    if (!a || !a.live.length) { el.textContent = state.lex ? 'the x-ray fills in as you write' : 'reading the dictionary'; return; }
+    const alts = a.live.map((l) => l.alt.value);
+    const spark = alts.map((v) => `<i style="height:${v == null ? 1 : Math.max(2, Math.round(v * 16))}px"></i>`).join('');
+    const top = SENSES.map((s2, k) => [a.summary.senseTotals[k], s2]).sort((x, y) => y[0] - x[0]).filter((x) => x[0]).slice(0, 3).map((x) => x[1]);
+    el.innerHTML = `<span>${a.summary.lines} lines · ${a.summary.syllables} syll</span>
+      <span title="altitude per line, ground to sky">altitude <span class="spark">${spark}</span></span>
+      <span>senses: ${esc(top.join(', ') || 'none yet')}</span>
+      ${a.surfaced.length ? `<span style="color:var(--firefly)">surfaced ×${a.surfaced.length}</span>` : ''}`;
+  }
+
+  function renderSoil() {
+    const el = $('#soil');
+    const p = page();
+    if (!p) { el.innerHTML = ''; return; }
+    const a = state.a;
+    const surf = a ? a.surfaced : [];
+    if (state.mode === 'write') {
+      const had = document.activeElement && document.activeElement.id === 'under';
+      if (had) { renderSurfaceList(el); return; }
+      el.innerHTML = `<div class="row2"><span class="label">the understory</span><span class="label" id="surfCount">${surf.length ? `surfaced ×${surf.length}` : 'nothing surfaced'}</span></div>
+        <label class="visually-hidden" for="under">The understory</label>
+        <textarea id="under" spellcheck="true" placeholder="The one sentence this song will never say.">${esc(p.under)}</textarea>
+        <div id="surfList"></div>`;
+      const ta = $('#under');
+      ta.addEventListener('input', () => { touch('under', ta.value); reanalyzeSoon(); });
+      renderSurfaceList(el);
+      return;
+    }
+    if (!p.under.trim()) {
+      el.innerHTML = `<div class="row2"><span class="label">the understory</span></div>
+        <p class="buried" style="filter:none">Nothing buried yet. In <b>write</b>, put the one sentence this song will never say below the ground line.</p>`;
+      return;
+    }
+    el.innerHTML = `<div class="row2"><span class="label">the understory</span>
+        <button class="link" id="uncover" type="button" aria-expanded="${state.underOpen}">${state.underOpen ? 'cover' : 'uncover'}</button></div>
+      <p class="buried${state.underOpen ? '' : ' hidden'}" id="buried">${esc(p.under)}</p>
+      <div id="surfList"></div>`;
+    renderSurfaceList(el);
+  }
+
+  function renderSurfaceList(el) {
+    const box = $('#surfList', el);
+    const count = $('#surfCount', el);
+    const a = state.a;
+    const surf = a ? a.surfaced : [];
+    if (count) count.textContent = surf.length ? `surfaced ×${surf.length}${deniedNote(surf)}` : 'nothing surfaced';
+    if (!box) return;
+    if (!a) { box.innerHTML = ''; return; }
+    if (!surf.length) {
+      box.innerHTML = `<p class="label" style="margin:10px 0 0;text-transform:none;letter-spacing:.02em">none of its words appear above the ground line</p>`;
+      return;
+    }
+    box.innerHTML = `<ul class="surf-list">${surfaceRows(a, surf)}</ul>`;
+  }
+
+  function deniedNote(list) {
+    const d = list.filter((x) => x.denial).length;
+    if (!d) return '';
+    return d === list.length ? ' · all denied' : ` · ${d} denied`;
+  }
+
+  // One row per distinct line (a refrain surfaces once, with its count).
+  function surfaceRows(a, list) {
+    const rows = new Map();
+    for (const s2 of list) {
+      const text = a.lines[s2.line].text.trim();
+      const key = text.toLowerCase();
+      if (!rows.has(key)) rows.set(key, { line: s2.line, text, words: new Set(), denial: s2.denial, n: 0 });
+      const row = rows.get(key);
+      row.words.add(s2.word.toLowerCase());
+      if (s2.line !== row.last) { row.n++; row.last = s2.line; }
+    }
+    return [...rows.values()].map((row) => {
+      const words = [...row.words].map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+      const marked = esc(row.text).replace(new RegExp(`\\b(${words.join('|')})\\b`, 'gi'), '<mark>$1</mark>');
+      return `<li><span class="label">${row.line + 1}</span> ${marked}${row.n > 1 ? ` <span class="label">×${row.n}</span>` : ''}${row.denial ? `<span class="tag">denied: “${esc(row.denial)}”</span>` : ''}</li>`;
+    }).join('');
+  }
+
+  // -------------------------------------------------------------- receipts
+  const sheet = { open: false, onClose: null };
+  function openSheet(kind, html, tall = false) {
+    $('#sheetKind').textContent = kind;
+    $('#sheetBody').innerHTML = html;
+    $('#sheet').classList.toggle('tall', tall);
+    $('#sheet').hidden = false;
+    $('#scrim').hidden = false;
+    sheet.open = true;
+    $('#sheetBody').scrollTop = 0;
+    $('#sheet').scrollTop = 0;
+    $('#sheetClose').focus({ preventScroll: true });
+    if (!lsGet(LS_HINT)) { lsSet(LS_HINT, 1); $('#hint').hidden = true; }
+  }
+  function closeSheet() {
+    $('#sheet').hidden = true;
+    $('#scrim').hidden = true;
+    sheet.open = false;
+    if (state.mirrorOf != null) { state.mirrorOf = null; if (state.mode === 'see') renderMain(); }
+    if (sheet.onClose) { const f = sheet.onClose; sheet.onClose = null; f(); }
+  }
+
+  const trim = (s, n) => (s.length > n ? s.slice(0, n - 1) + '…' : s);
+  const pct = (v) => Math.round(v * 100);
+  const vowelWord = (v) => { const x = E.VOWEL_AS[v]; return x ? `“${x[0]}” as in ${x[1]}` : v; };
+  const SOURCES = {
+    cmu: 'Pronunciation and stress: CMU Pronouncing Dictionary.',
+    conc: 'Concreteness: Brysbaert, Warriner & Kuperman (2014), 40,000 words rated 1–5 by about 30 people each.',
+    lanc: 'Senses: Lancaster Sensorimotor Norms (Lynott et al., 2020, CC BY 4.0), folded into Pattison’s seven senses.',
+  };
+
+  function senseBars(vals, drivers) {
+    return `<div class="bars">${SENSES.map((s, k) => `<span>${s}</span><span class="bar"><i style="width:${pct(vals[k])}%"></i></span><span class="who">${drivers && drivers[k] && vals[k] > 0 ? esc(drivers[k]) : (vals[k] ? (vals[k] * 9).toFixed(0) + '/9' : '')}</span>`).join('')}</div>`;
+  }
+
+  function receiptWord(li, k) {
+    const l = state.a.lines[li];
+    const w = l.words[k];
+    const info = w.info;
+    const p = page();
+    const following = (p.follow || []).includes(info.lemma);
+    const src = info.source === 'dictionary' ? 'from the dictionary'
+      : info.source === 'derived' ? 'built from a dictionary word (an inflection or a dropped g)'
+        : 'guessed from spelling; this word is not in the dictionary';
+    const stressWords = { S: 'stressed', s: 'half-stressed', w: 'light' };
+    let html = `<h2 id="sheetTitle">${esc(w.t)}</h2>`;
+    html += `<dl class="kv">
+      <dt>sounds</dt><dd>${info.phones ? esc(E.respell(info.phones)) : '?'} <span style="color:var(--ink-3)">(${esc(src)})</span></dd>
+      <dt>syllables</dt><dd>${info.syll}: ${info.stress.map((s) => stressWords[s]).join(', ')}${info.fn && info.syll === 1 ? ' (a small word, spoken light)' : ''}</dd>`;
+    if (info.phones) {
+      const rp = E.rhymeParts(info.phones);
+      if (rp) html += `<dt>rhymes on</dt><dd>the ${esc(vowelWord(rp.vowel))}${rp.rest.length ? ' + ' + esc(rp.rest.join(' ').toLowerCase()) : ''}</dd>`;
+    }
+    if (info.lemma !== info.w) html += `<dt>rated as</dt><dd>${esc(info.lemma)}</dd>`;
+    html += '</dl>';
+    if (info.conc != null) {
+      html += `<h3>altitude</h3><div class="scale"><i style="left:${((5 - info.conc) / 4 * 100).toFixed(1)}%"></i></div>
+        <div class="scale-ends"><span>ground: you can touch it</span><span>sky: an idea</span></div>
+        <p class="quiet">${info.conc.toFixed(1)} of 5 for concreteness. ${info.conc >= 4 ? 'Something a camera could find.' : info.conc >= 3 ? 'Halfway: you can picture it, not quite hold it.' : 'An idea. A camera would have nothing to point at.'}</p>`;
+    } else if (!info.fn) html += `<p class="quiet">No concreteness rating for this word.</p>`;
+    if (info.senses) html += `<h3>senses</h3>${senseBars(info.senses, null)}`;
+    if (!info.fn) {
+      html += `<div class="btns"><button class="btn ${following ? '' : 'solid'}" type="button" data-act="follow" data-lemma="${esc(info.lemma)}">${following ? 'stop following' : 'follow this word'}</button></div>
+        <p class="quiet">Following lights every <i>${esc(info.lemma)}</i> on the page, so you can watch where the object travels.</p>`;
+    }
+    html += `<p class="src">${SOURCES.cmu} ${info.conc != null ? SOURCES.conc : ''} ${info.senses ? SOURCES.lanc : ''}</p>`;
+    openSheet('word', html);
+  }
+
+  function receiptVoice(li) {
+    const l = state.a.lines[li];
+    const v = l.voice;
+    const acts = {
+      question: 'A question. Nothing asserted; the asker shows through what they ask.',
+      promise: 'A promise. It says what will happen, which is a way of admitting it might not.',
+      plea: 'A plea, or an order. Someone is being asked to do something.',
+      statement: 'A statement.',
+    };
+    let html = `<h2 id="sheetTitle">${esc(l.text.trim())}</h2>
+      <p>${acts[v.act]}${v.trigger ? ` <span class="mono" style="font-size:12px;color:var(--ink-3)">(read from “${esc(v.trigger)}”)</span>` : ''}</p>
+      <dl class="kv">
+        <dt>who</dt><dd>${v.persons.length ? esc(v.persons.join(', ')) : 'nobody named'}</dd>
+        <dt>time</dt><dd>${esc(v.tense)}${v.tenseTrigger ? ` (“${esc(v.tenseTrigger)}”)` : ''}</dd>
+        <dt>syllables</dt><dd>${l.syll}</dd>
+      </dl>`;
+    html += mirrorsHTML(l);
+    html += `<p class="src">Voice is read from the words alone: a question mark or a question’s opening, “I will / I won’t”, a line that starts on a verb. It guesses; you know.</p>`;
+    state.mirrorOf = li;
+    if (state.mode === 'see' && state.zoom !== 'shape') renderMain();
+    openSheet('voice', html);
+  }
+
+  function mirrorsHTML(l) {
+    const a = state.a;
+    if (!l.mirrors.length) return '';
+    const rows = [l.i, ...l.mirrors].sort((x, y) => x - y).map((i) => {
+      const m = a.lines[i];
+      const dots = m.stress.map((s) => (s === 'S' ? '●' : s === 's' ? '○' : '·')).join('');
+      return `<dt${i === l.i ? ' style="color:var(--fern)"' : ''}>${m.syll} syll</dt><dd><span class="mono" style="letter-spacing:.05em">${dots}</span><br>${esc(trim(m.text.trim(), 60))}</dd>`;
+    }).join('');
+    return `<h3>the same seat in every stanza</h3><dl class="kv">${rows}</dl>
+      <p class="quiet">Lines sung to the same melody want the same number of syllables and their stresses in the same places.</p>`;
+  }
+
+  function receiptAlt(li) {
+    const l = state.a.lines[li];
+    const alt = l.alt;
+    if (alt.value == null) { openSheet('altitude', `<h2 id="sheetTitle">No rated words on this line</h2><p class="quiet">Only function words, names, or words the ratings don’t cover.</p>`); return; }
+    const where = alt.value < 0.28 ? 'on the ground: things you could film' : alt.value < 0.45 ? 'low: mostly things, a little idea' : alt.value < 0.6 ? 'halfway up' : alt.value < 0.75 ? 'high: mostly ideas' : 'in the sky: nothing a camera could find';
+    const sorted = [...alt.rated].sort((x, y) => x.c - y.c);
+    let html = `<h2 id="sheetTitle">This line sits ${where}</h2>
+      <div class="scale"><i style="left:${pct(alt.value)}%"></i></div>
+      <div class="scale-ends"><span>ground</span><span>sky</span></div>
+      <p class="quiet">Average concreteness ${alt.mean.toFixed(1)} of 5 across the words that carry meaning.</p>
+      <dl class="kv">${sorted.map((r) => `<dt>${r.c.toFixed(1)}</dt><dd>${esc(r.w)}${r.lemma && r.lemma !== r.w.toLowerCase() ? ` <span style="color:var(--ink-3)">(${esc(r.lemma)})</span>` : ''}</dd>`).join('')}</dl>`;
+    if (alt.unrated.length) html += `<p class="quiet">Unrated: ${esc(alt.unrated.join(', '))}</p>`;
+    html += `<p class="src">${SOURCES.conc}</p>`;
+    openSheet('altitude', html);
+  }
+
+  function receiptSenses(li) {
+    const l = state.a.lines[li];
+    const strong = SENSES.filter((s, k) => l.senses.vals[k] >= 0.5);
+    const html = `<h2 id="sheetTitle">${strong.length ? `This line touches ${esc(listJoin(strong))}` : 'This line barely touches the senses'}</h2>
+      ${senseBars(l.senses.vals, l.senses.drivers)}
+      <p class="quiet">Each bar is the strongest word on the line for that sense. Sight is usually loudest; smell, taste and the body are where the surprise tends to live.</p>
+      <p class="src">${SOURCES.lanc} Body is interoception (a racing heart, a full stomach); motion is the strongest of the leg, hand and torso ratings.</p>`;
+    openSheet('senses', html);
+  }
+  const listJoin = (xs) => (xs.length < 2 ? xs.join('') : xs.slice(0, -1).join(', ') + ' and ' + xs[xs.length - 1]);
+
+  const LADDER = [
+    ['perfect', 'Same vowel, same ending, different start (day / say). It lands.'],
+    ['family', 'Same vowel; the endings are cousins, made the same way (rub / dug). Lands softer.'],
+    ['additive', 'Same vowel; one word adds a sound (free / freed). Almost lands.'],
+    ['identity', 'The sounds match before the vowel too (leave / believe). Reads as an echo.'],
+    ['assonance', 'Same vowel, unrelated endings (love / touch). Leans forward instead of landing.'],
+    ['consonance', 'Different vowel, same ending (love / leave). Hangs in the air.'],
+  ];
+  function ladderHTML(on) {
+    return `<ol class="ladder">${LADDER.map(([k, d]) => `<li class="${k === on ? 'on' : ''}"><b>${k}</b><span>${d}</span></li>`).join('')}</ol>`;
+  }
+
+  function receiptRhyme(li) {
+    const a = state.a;
+    const l = a.lines[li];
+    // A line's own link looks back; if it has none, show the later line
+    // that rhymes back to it, read from this line's side.
+    let r = l.rhyme;
+    if (!r && l.rhymedBy.length) {
+      const by = [...l.rhymedBy].sort((x, y) => y.rank - x.rank)[0];
+      const back = a.lines[by.from].rhyme;
+      r = { ...back, a: back.b, b: back.a, textA: back.textB, textB: back.textA, phonesA: back.phonesB, phonesB: back.phonesA, with: by.from };
+    }
+    let html;
+    if (!r) {
+      html = `<h2 id="sheetTitle">“${esc(l.tail ? l.tail.text : '')}” rhymes with nothing nearby</h2>
+        <p>No line end in the four before it shares its sound. ${l.scheme !== 'x' ? `Later lines rhyme back to it (${esc(l.scheme)}).` : 'Unrhymed lines keep a verse moving; a rhyme is a landing, and not every line should land.'}</p>
+        ${ladderHTML(null)}`;
+    } else if (r.kind === 'same') {
+      html = `<h2 id="sheetTitle">The same word ends line ${r.with + 1}</h2>
+        <p>“${esc(r.a.raw)}” twice. That is an echo, not a rhyme: the ear hears repetition, which can be the point.</p>`;
+    } else {
+      const other = a.lines[r.with];
+      const ta = r.textA || r.a.raw;
+      const tb = r.textB || r.b.raw;
+      html = `<h2 id="sheetTitle">${esc(r.kind[0].toUpperCase() + r.kind.slice(1))}: “${esc(ta)}” / “${esc(tb)}”</h2>
+        <p class="quiet">with line ${r.with + 1}: <i>${esc(trim(other.text.trim(), 70))}</i></p>
+        <dl class="kv">
+          <dt>vowel</dt><dd>${esc(vowelWord(r.vowel))}</dd>
+          <dt>${esc(ta)}</dt><dd>${esc(E.respell(r.phonesA || r.a.phones))}</dd>
+          <dt>${esc(tb)}</dt><dd>${esc(E.respell(r.phonesB || r.b.phones))}</dd>
+          ${r.notes && r.notes.length ? `<dt>why</dt><dd>${esc(r.notes.join('; ').toLowerCase())}</dd>` : ''}
+        </dl>
+        <h3>where it sits on the ladder</h3>${ladderHTML(r.kind)}
+        <p class="quiet">Rhyme is the lyric’s cadence: perfect rhyme closes a phrase the way a V–I does; the lower rungs leave a remainder, and the remainder is what makes the next line necessary.</p>`;
+    }
+    html += `<p class="src">${SOURCES.cmu} The ladder is Pat Pattison’s, from <i>Writing Better Lyrics</i>. Rhymes are read from the line’s last stressed vowel to its end, light words included: “GUIDE me” rhymes on GUIDE.</p>`;
+    openSheet('rhyme', html);
+  }
+
+  function receiptRefrain(rid) {
+    const r = state.a.refrains[rid];
+    if (!r) return;
+    const counts = r.turns.map((t) => t.count);
+    const turns = r.turns.map((t, n) => `<div class="floor">
+        ${(r.floors[n] || []).map((f) => `<div class="under">${esc(f)}</div>`).join('') || '<div class="under">(opens the song)</div>'}
+        <div class="ref">${esc(r.text)}${t.count > 1 ? ` <span class="label">×${t.count}</span>` : ''} <span class="label">turn ${n + 1}</span></div>
+      </div>`).join('');
+    const last = counts[counts.length - 1];
+    const before = counts.length > 1 ? Math.max(...counts.slice(0, -1)) : 0;
+    const longer = counts.length > 1 && last > before ? `<p class="quiet">The last return runs longest: ×${last} against ×${before}.</p>` : '';
+    const title = `“${esc(r.text)}” comes back ${r.turns.length === 1 ? 'once' : r.turns.length + ' times'}${counts.some((c) => c > 1) ? `, ${r.lines.length} lines in all` : ''}`;
+    openSheet('refrain', `<h2 id="sheetTitle">${title}</h2>
+      <p class="quiet">Same words, new floor. Read each return with the two lines under it: if the words never change, everything around them has to.</p>
+      ${turns}${longer}`);
+  }
+
+  function receiptLine(li) {
+    const l = state.a.lines[li];
+    state.mirrorOf = li;
+    renderMain();
+    const top = SENSES.map((s, k) => [l.senses.vals[k], s, l.senses.drivers[k]]).filter((x) => x[0] >= 0.5).sort((x, y) => y[0] - x[0]).slice(0, 3);
+    let html = `<h2 id="sheetTitle">${esc(l.text.trim())}</h2>
+      <dl class="kv">
+        <dt>voice</dt><dd>${esc(l.voice.act)}${l.voice.trigger ? ` (“${esc(l.voice.trigger)}”)` : ''}, ${esc(l.voice.tense)}</dd>
+        <dt>who</dt><dd>${esc(l.voice.persons.join(', ') || 'nobody named')}</dd>
+        <dt>altitude</dt><dd>${l.alt.mean == null ? 'unrated' : `${l.alt.mean.toFixed(1)} of 5 concrete`}</dd>
+        <dt>senses</dt><dd>${top.length ? esc(top.map((x) => `${x[1]} (${x[2]})`).join(', ')) : 'faint'}</dd>
+        <dt>rhyme</dt><dd>${l.rhyme && l.rhyme.kind !== 'same' ? `${esc(l.rhyme.kind)} with line ${l.rhyme.with + 1}` : l.rhyme ? 'echo' : 'none nearby'} (${esc(l.scheme)})</dd>
+      </dl>`;
+    html += mirrorsHTML(l);
+    html += `<div class="btns"><button class="btn" type="button" data-act="goto" data-i="${l.i}">see this line up close</button></div>`;
+    openSheet('line ' + (l.i + 1), html);
+  }
+
+  function receiptMotif(lemma) {
+    const m = state.a.motifs.find((x) => x.lemma === lemma);
+    if (!m) return;
+    const p = page();
+    const following = (p.follow || []).includes(lemma);
+    openSheet('motif', `<h2 id="sheetTitle">“${esc(lemma)}” keeps coming back</h2>
+      <ul class="surf-list">${m.lines.map((li) => `<li><span class="label">${li + 1}</span> ${esc(state.a.lines[li].text.trim())}</li>`).join('')}</ul>
+      <div class="btns"><button class="btn ${following ? '' : 'solid'}" type="button" data-act="follow" data-lemma="${esc(lemma)}">${following ? 'stop following' : 'follow this word'}</button></div>`);
+  }
+
+  function receiptWho() {
+    const s = state.a.summary;
+    const entries = Object.entries(s.persons).sort((x, y) => y[1] - x[1]);
+    let note = '';
+    if (!s.persons.I && s.persons.you) note = 'The speaker never says I. Everything they feel has to come through what they notice about someone else.';
+    else if (!s.persons.you && (s.persons.she || s.persons.he || s.persons.they)) note = 'No “you” on this page: it is told about someone, not to them.';
+    else if (s.persons.I && s.persons.you) note = 'I and you, in the same room.';
+    const stz = s.stanzas.map((st, n) => {
+      const ps = Object.entries(st.persons).sort((x, y) => y[1] - x[1]).map(([p2]) => p2);
+      return `<dt>stanza ${n + 1}</dt><dd>${ps.length ? esc(ps.join(', ')) : 'nobody named'}</dd>`;
+    }).join('');
+    const firsts = Object.entries(s.firstSeen).sort((x, y) => x[1] - y[1])
+      .map(([p2, li]) => `<li><span class="label">${li + 1}</span> <b>${esc(p2)}</b> first, in: <i>${esc(trim(state.a.lines[li].text.trim(), 64))}</i></li>`).join('');
+    openSheet('who', `<h2 id="sheetTitle">Who is in this song</h2>
+      <dl class="kv">${entries.map(([p, n]) => `<dt>${esc(p)}</dt><dd>${n} line${n > 1 ? 's' : ''}</dd>`).join('')}</dl>
+      ${note ? `<p>${esc(note)}</p>` : ''}
+      ${s.stanzas.length > 1 ? `<h3>stanza by stanza</h3><dl class="kv">${stz}</dl>` : ''}
+      ${firsts ? `<h3>where each one first appears</h3><ul class="surf-list">${firsts}</ul>` : ''}
+      <div class="btns"><button class="btn" type="button" data-act="voices">try another voice</button></div>`);
+  }
+
+  function receiptActs() {
+    const s = state.a.summary;
+    openSheet('voice', `<h2 id="sheetTitle">What this song does to someone</h2>
+      <dl class="kv">${Object.entries(s.counts).map(([k, n]) => `<dt>${esc(k)}</dt><dd>${n}</dd>`).join('')}</dl>
+      <p class="quiet">A song is something one person says to another: a promise, a question, a plea, a confession. The lines above are counted by what they do, not what they mean.</p>`);
+  }
+
+  function receiptUnder() {
+    const a = state.a;
+    const p = page();
+    const denied = a.surfaced.filter((x) => x.denial);
+    const said = a.surfaced.filter((x) => !x.denial);
+    openSheet('understory', `<h2 id="sheetTitle">What surfaced</h2>
+      <p class="quiet">Below the ground: <i>${esc(p.under)}</i></p>
+      ${said.length ? `<h3>said</h3><ul class="surf-list">${surfaceRows(a, said)}</ul>
+        <p class="quiet">When the understory’s words appear above the ground, the song starts saying it. Leave them if you mean to.</p>` : ''}
+      ${denied.length ? `<h3>said, and denied</h3><ul class="surf-list">${surfaceRows(a, denied)}</ul>
+        <p class="quiet">The shadow sentence, seen from underneath: the word is in the room because the line says it isn’t. The song gets to say it and not say it at once.</p>` : ''}`);
+  }
+
+  // --------------------------------------------------------------- drawer
+  function openDrawer() {
+    const p = page();
+    const list = ordered().map((pg) => {
+      const first = pg.text.split('\n').find((x) => x.trim()) || 'empty';
+      return `<li class="${pg.id === state.current ? 'cur' : ''}">
+        <button type="button" data-act="open" data-id="${esc(pg.id)}"><span class="t">${esc(pg.title || 'untitled')}${pg.example ? '<span class="tag">example</span>' : ''}</span><span class="f">${esc(first)}</span></button>
+        <button class="x" type="button" data-act="askdelete" data-id="${esc(pg.id)}" aria-label="Delete ${esc(pg.title || 'untitled')}">delete</button>
+      </li>`;
+    }).join('');
+    const where = state.cloud === 'account'
+      ? 'Pages save to your claude.ai account, private to you, on every device you open this from.'
+      : 'Pages save in this browser only. Back them up to keep them.';
+    let grav = '';
+    if (state.lex && state.pages.size) {
+      const g = E.gravity(state.lex, [...state.pages.values()].filter((x) => !x.example)).slice(0, 14);
+      grav = g.length
+        ? `<div class="grav">${g.map((h) => `<button type="button" data-act="gravity" data-lemma="${esc(h.lemma)}">${esc(h.lemma)}</button><span class="n">${h.count}× · ${h.pages}p</span>`).join('')}</div>`
+        : '<p class="quiet">Nothing repeats across your pages yet. Gravity shows up after a few pages.</p>';
+    }
+    const html = `<h2 id="sheetTitle">Pages</h2>
+      <div class="btns"><button class="btn solid" type="button" data-act="new">new page</button><button class="btn" type="button" data-act="import">import a text file</button></div>
+      <ul class="pages" style="margin-top:12px">${list}</ul>
+      <div id="confirm"></div>
+      <h3>gravity</h3>
+      <p class="quiet">The words you keep coming back to, across every page but the example.</p>
+      ${grav}
+      <h3>voice</h3>
+      <p class="quiet">Hear this page from another mouth. A preview first; nothing changes until you choose it.</p>
+      <div class="flipper">
+        <button class="btn" type="button" data-act="flip" data-from="I" data-to="you">I ↔ you</button>
+        <button class="btn" type="button" data-act="flip" data-from="she" data-to="you">she → you</button>
+        <button class="btn" type="button" data-act="flip" data-from="he" data-to="you">he → you</button>
+        <button class="btn" type="button" data-act="flip" data-from="I" data-to="she">I → she</button>
+        <button class="btn" type="button" data-act="flip" data-from="I" data-to="he">I → he</button>
+        <button class="btn" type="button" data-act="flip" data-from="you" data-to="she">you → she</button>
+      </div>
+      <div id="flipOut"></div>
+      <h3>take it out</h3>
+      <div class="btns">
+        <button class="btn" type="button" data-act="copy" data-as="text">copy text</button>
+        <button class="btn" type="button" data-act="copy" data-as="woodshed">copy for woodshed</button>
+        <button class="btn" type="button" data-act="copy" data-as="chordpro">copy as ChordPro</button>
+        ${canSave() ? '<button class="btn" type="button" data-act="save">save .md</button>' : ''}
+      </div>
+      <div id="copyFallback"></div>
+      <h3>keep them</h3>
+      <p class="quiet">${where}</p>
+      <div class="btns">
+        ${canSave() ? '<button class="btn" type="button" data-act="backup">back up all pages</button>' : '<button class="btn" type="button" data-act="copy" data-as="backup">copy backup</button>'}
+        <button class="btn" type="button" data-act="restore">restore a backup</button>
+      </div>
+      <h3>what it reads with</h3>
+      <p class="src">${SOURCES.cmu} Carnegie Mellon University, BSD-style licence. ${SOURCES.conc} ${SOURCES.lanc} Rhyme ladder and the seven senses: Pat Pattison. Nothing you write leaves this page except to your own account.</p>`;
+    openSheet('pages', html, true);
+    void p;
+  }
+
+  const canSave = () => !!state.downloads || !window.claude;
+
+  // ------------------------------------------------------------- exports
+  const slug = (s) => (s || 'untitled').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'untitled';
+  function asText(p) { return `${p.title || 'untitled'}\n\n${p.text}\n`; }
+  function asWoodshed(p) {
+    const d = new Date(p.updated).toISOString().slice(0, 10);
+    return `# ${p.title || 'untitled'}\n\nDraft, ${d}. Transcribed exactly as written. Do not reflow.\n\n` +
+      (p.under.trim() ? `The understory (never sung): *${p.under.trim()}*\n\n` : '') +
+      '```text\n' + p.text.replace(/\s+$/, '') + '\n```\n';
+  }
+  function asChordPro(p) {
+    return `{title: ${p.title || 'untitled'}}\n` + (p.under.trim() ? `{comment: understory — ${p.under.trim()}}\n` : '') +
+      p.text.split(/\n\s*\n/).map((st) => `{start_of_verse}\n${st.replace(/\s+$/, '')}\n{end_of_verse}`).join('\n\n') + '\n';
+  }
+  function asBackup() {
+    return JSON.stringify({ kind: 'understory-backup', version: 1, saved: new Date().toISOString(), pages: [...state.pages.values()] }, null, 1);
+  }
+
+  async function copyOut(text, label) {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast(`copied ${label}`);
+    } catch {
+      const box = $('#copyFallback');
+      if (box) {
+        box.innerHTML = `<p class="quiet">Copy was blocked here. The text is selected below; copy it by hand.</p><textarea class="fallback-copy" readonly>${esc(text)}</textarea>`;
+        const ta = $('textarea', box);
+        ta.focus();
+        ta.select();
+      }
+    }
+  }
+
+  async function saveFile(filename, data) {
+    if (state.downloads) {
+      try {
+        const r = await state.downloads.save({ filename, data });
+        toast(r && r.status === 'delivered' ? 'sent' : 'saved');
+      } catch (e) {
+        if (e && e.code === 'declined') return;
+        toast(e && e.code === 'rate_limited' ? 'a save is already waiting for you' : 'saving is not available here');
+      }
+      return;
+    }
+    const url = URL.createObjectURL(new Blob([data], { type: 'text/plain;charset=utf-8' }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+
+  function restoreFrom(text) {
+    let data;
+    try { data = JSON.parse(text); } catch { toast('that file is not a backup'); return; }
+    if (!data || !Array.isArray(data.pages)) { toast('that file is not a backup'); return; }
+    let n = 0;
+    for (const raw of data.pages) {
+      if (!raw || !raw.id) continue;
+      const p = clean(raw);
+      const have = state.pages.get(p.id);
+      if (!have || p.updated > have.updated) { state.pages.set(p.id, p); queueWrite(p.id, 0); n++; }
+    }
+    saveLocal();
+    reanalyze();
+    renderAll();
+    closeSheet();
+    toast(n ? `restored ${n} page${n > 1 ? 's' : ''}` : 'nothing newer in that backup');
+  }
+
+  function importText(name, text) {
+    let body = text.replace(/\r\n?/g, '\n');
+    const fence = body.match(/```[a-z]*\n([\s\S]*?)```/);
+    if (fence) body = fence[1];
+    body = body.split('\n').filter((l) => !/^\{[a-z_]+(:.*)?\}$/i.test(l.trim())).join('\n').replace(/\n{3,}/g, '\n\n').trim();
+    const p = clean({ id: newId(), title: name.replace(/\.[a-z]+$/i, '').replace(/[-_]+/g, ' '), text: body, under: '', follow: [] });
+    state.pages.set(p.id, p);
+    state.current = p.id;
+    queueWrite(p.id, 0);
+    saveLocal();
+    reanalyze();
+    closeSheet();
+    renderAll();
+    toast('imported');
+  }
+
+  let toastTimer = 0;
+  function toast(msg, action) {
+    const el = $('#toast');
+    el.innerHTML = `<span>${esc(msg)}</span>${action ? `<button type="button" id="toastAct">${esc(action.label)}</button>` : ''}`;
+    el.hidden = false;
+    if (action) $('#toastAct').onclick = () => { el.hidden = true; action.run(); };
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.hidden = true; }, action ? 8000 : 2200);
+  }
+
+  // --------------------------------------------------------------- events
+  function onTap(e) {
+    const t = e.target.closest('[data-kind], [data-act]');
+    if (!t) return;
+    const d = t.dataset;
+    if (d.kind && state.a) {
+      const i = d.i != null ? +d.i : null;
+      switch (d.kind) {
+        case 'word': receiptWord(i, +d.k); return;
+        case 'voice': receiptVoice(i); return;
+        case 'alt': receiptAlt(i); return;
+        case 'senses': receiptSenses(i); return;
+        case 'rhyme': receiptRhyme(i); return;
+        case 'refrain': receiptRefrain(+d.r); return;
+        case 'line': receiptLine(i); return;
+        case 'motif': receiptMotif(d.m); return;
+        case 'who': receiptWho(); return;
+        case 'acts': receiptActs(); return;
+        case 'ladder': openSheet('rhyme', `<h2 id="sheetTitle">The rhyme ladder</h2>${ladderHTML(null)}<p class="quiet">Tap a letter beside any line to see which rung its rhyme sits on.</p>`); return;
+        case 'under': receiptUnder(); return;
+        default: return;
+      }
+    }
+    if (d.act) doAct(d, t);
+  }
+
+  function doAct(d, t) {
+    const p = page();
+    switch (d.act) {
+      case 'follow': {
+        const set = new Set(p.follow || []);
+        if (set.has(d.lemma)) set.delete(d.lemma); else set.add(d.lemma);
+        touch('follow', [...set]);
+        reanalyze();
+        closeSheet();
+        renderMain();
+        toast(set.has(d.lemma) ? `following “${d.lemma}”` : `stopped following “${d.lemma}”`);
+        return;
+      }
+      case 'goto': closeSheet(); state.zoom = 'lines'; renderAll(); requestAnimationFrame(() => { const el = document.querySelector(`.ln[data-line="${d.i}"]`); if (el) el.scrollIntoView({ block: 'center' }); }); return;
+      case 'voices': closeSheet(); openDrawer(); requestAnimationFrame(() => { const el = $('.flipper'); if (el) el.scrollIntoView({ block: 'center' }); }); return;
+      case 'open': state.current = d.id; state.underOpen = false; saveLocal(); reanalyze(); closeSheet(); renderAll(); window.scrollTo(0, 0); return;
+      case 'new': {
+        const np = clean({ id: newId(), title: '', text: '', under: '', follow: [] });
+        state.pages.set(np.id, np);
+        state.current = np.id;
+        state.mode = 'write';
+        saveLocal();
+        queueWrite(np.id, 0);
+        reanalyze();
+        closeSheet();
+        renderAll();
+        $('#title').focus();
+        return;
+      }
+      case 'askdelete': {
+        const target = state.pages.get(d.id);
+        if (!target) return;
+        $('#confirm').innerHTML = `<p>Delete “${esc(target.title || 'untitled')}”? This can’t be undone.</p>
+          <div class="btns"><button class="btn warn" type="button" data-act="delete" data-id="${esc(d.id)}">delete it</button><button class="btn" type="button" data-act="keep">keep it</button></div>`;
+        $('#confirm').scrollIntoView({ block: 'nearest' });
+        return;
+      }
+      case 'keep': $('#confirm').innerHTML = ''; return;
+      case 'delete': {
+        state.pages.delete(d.id);
+        queueWrite(d.id, 0);
+        if (!state.pages.size) { const ex = makeExample(); state.pages.set(ex.id, ex); queueWrite(ex.id, 0); }
+        if (!state.pages.has(state.current)) state.current = ordered()[0].id;
+        saveLocal();
+        reanalyze();
+        renderAll();
+        openDrawer();
+        toast('deleted');
+        return;
+      }
+      case 'import': $('#fileImport').click(); return;
+      case 'restore': $('#fileRestore').click(); return;
+      case 'copy': {
+        const as = d.as;
+        const text = as === 'woodshed' ? asWoodshed(p) : as === 'chordpro' ? asChordPro(p) : as === 'backup' ? asBackup() : asText(p);
+        copyOut(text, as === 'text' ? 'text' : as);
+        return;
+      }
+      case 'save': saveFile(`${slug(p.title)}.md`, asWoodshed(p)); return;
+      case 'backup': saveFile(`understory-backup-${new Date().toISOString().slice(0, 10)}.json`, asBackup()); return;
+      case 'gravity': {
+        const g = E.gravity(state.lex, [...state.pages.values()].filter((x) => !x.example)).find((h) => h.lemma === d.lemma);
+        if (!g) return;
+        openSheet('gravity', `<h2 id="sheetTitle">“${esc(d.lemma)}”</h2>
+          <p class="quiet">${g.count} times on ${g.pages} page${g.pages > 1 ? 's' : ''}.</p>
+          <ul class="surf-list">${g.where.map((w) => `<li><span class="label">${esc(trim(w.title || 'untitled', 18))}</span> ${esc(w.text)}</li>`).join('')}</ul>`, true);
+        return;
+      }
+      case 'flip': {
+        const out = E.flipVoice(p.text, d.from, d.to);
+        const box = $('#flipOut');
+        if (out === p.text) { box.innerHTML = `<p class="quiet">No “${esc(d.from)}” on this page to move.</p>`; return; }
+        box.innerHTML = `<div class="preview">${esc(out)}</div>
+          <div class="btns"><button class="btn solid" type="button" data-act="useflip">use this version</button></div>`;
+        box.dataset.text = out;
+        box.scrollIntoView({ block: 'nearest' });
+        return;
+      }
+      case 'useflip': {
+        const box = $('#flipOut');
+        const before = p.text;
+        touch('text', box.dataset.text);
+        reanalyze();
+        closeSheet();
+        renderAll();
+        toast('voice changed', { label: 'undo', run: () => { touch('text', before); reanalyze(); renderAll(); } });
+        return;
+      }
+      default:
+    }
+    void t;
+  }
+
+  function bind() {
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('#sheet') || e.target.closest('#main') || e.target.closest('#soil')) onTap(e);
+    });
+    $('#scrim').addEventListener('click', closeSheet);
+    $('#sheetClose').addEventListener('click', closeSheet);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && sheet.open) closeSheet(); });
+    $('#modeBtn').addEventListener('click', () => {
+      state.mode = state.mode === 'see' ? 'write' : 'see';
+      if (state.mode === 'see') reanalyze();
+      renderAll();
+      if (state.mode === 'write') { const ta = $('#lyric'); if (ta && !ta.value) ta.focus(); }
+    });
+    document.querySelectorAll('.zoom button').forEach((b) => b.addEventListener('click', () => {
+      state.zoom = b.dataset.z;
+      state.mode = 'see';
+      state.mirrorOf = null;
+      reanalyze();
+      saveLocal();
+      renderAll();
+    }));
+    $('#pagesBtn').addEventListener('click', openDrawer);
+    $('#title').addEventListener('input', (e) => touch('title', e.target.value));
+    $('#soil').addEventListener('click', (e) => {
+      if (e.target.closest('#uncover')) { state.underOpen = !state.underOpen; renderSoil(); }
+    });
+    $('#fileRestore').addEventListener('change', (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      const r = new FileReader();
+      r.onload = () => restoreFrom(String(r.result));
+      r.readAsText(f);
+      e.target.value = '';
+    });
+    $('#fileImport').addEventListener('change', (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      const r = new FileReader();
+      r.onload = () => importText(f.name, String(r.result));
+      r.readAsText(f);
+      e.target.value = '';
+    });
+    window.addEventListener('resize', () => { if (state.mode === 'see' && state.zoom === 'shape') drawContour(); });
+  }
+
+  // ----------------------------------------------------------------- boot
+  function boot() {
+    const saved = lsGet(LS_PAGES);
+    if (saved && Array.isArray(saved.pages)) saved.pages.forEach((p) => { if (p && p.id) state.pages.set(String(p.id), clean(p)); });
+    if (!state.pages.size) { const ex = makeExample(); state.pages.set(ex.id, ex); }
+    const ui = lsGet(LS_UI) || {};
+    state.current = state.pages.has(ui.current) ? ui.current : ordered()[0].id;
+    if (['shape', 'lines', 'sounds'].includes(ui.zoom)) state.zoom = ui.zoom;
+    if (!lsGet(LS_HINT)) $('#hint').hidden = false;
+    bind();
+    renderAll();
+    loadLexicon();
+    connectCloud();
+  }
+  boot();
+})();
+</script>

@@ -1,0 +1,17 @@
+{
+  "name": "Understory",
+  "short_name": "Understory",
+  "description": "A lyric x-ray: stress, rhyme, altitude, senses and voice, and the one sentence a song never says.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#edf0ea",
+  "theme_color": "#0e1411",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
