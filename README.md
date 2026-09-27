@@ -1,160 +1,112 @@
 # understory
 
-Understory is a lyric x-ray for songwriters. Write or paste a lyric and it
-shows what is under the words: where the stresses fall, how each rhyme lands,
-how far each line floats from things you can touch, which of the seven senses
-it reaches, who is talking to whom, and which lines come back and what they
-land on each time. Below a ground line sits the understory, the one sentence
-the song never says, and its words light up if they surface in the lyric.
-There is no AI and no server: three public word lists and a page of rules run
-in the browser, and every mark opens a receipt showing exactly what it was
-computed from.
+[![Deploy to GitHub Pages](https://github.com/ampactor-labs/understory/actions/workflows/pages.yml/badge.svg)](https://github.com/ampactor-labs/understory/actions/workflows/pages.yml)
 
-**Status: Prototype.** The x-ray works on any lyric; it reads how a line is spoken, not how it is sung, and pages are saved only in the browser that wrote them.
+A lyric x-ray for songwriters that shows where a lyric's stresses fall, how
+its lines rhyme, how concrete each line is and which senses it reaches.
+Under a ground line you can bury the one sentence the song never says, and
+its words light up wherever they surface in the lyric. It is plain
+JavaScript in the browser with no language model or backend of its own:
+rules and three public word lists make every mark, and each mark opens a
+receipt showing what it came from.
 
-Live at **[ampactor.dev/understory](https://ampactor.dev/understory/)**. It
-opens on "Spare Key," an example written for the instrument so the first look
-has something under it.
+**Status: prototype.** It marks stress as a line is spoken because it has no melody to read, and the hosted copy keeps pages only in the browser that saved them.
 
-## Measured
+Live: https://ampactor.dev/understory/
 
-- **55,755 words** in `lexicon.txt`: 44,276 with pronunciation and stress,
-  37,058 with a concreteness rating, 36,811 with a seven-sense profile.
-  **80,635 more pronunciations** (names, places, rare spellings) in
-  `lexicon-extra.txt`, loaded after first paint. About 1.3 MB each, 0.5 MB
-  each gzipped.
-- **73 engine checks** pass: Pattison's rhyme ladder one rung at a time,
-  rhymes that run across light words ("GUIDE me / inSIDE me"), stress, voice,
-  refrains in turns, the understory surfacing and surfacing denied, voice
-  flips.
-- On the two songs it was built around (lyrics are not in this repo): "When
-  You Sleep" (Cake, 1998) is 24 questions in 36 lines and never says "I";
-  "I Won't Hurt You" (The West Coast Pop Art Experimental Band, 1967) is 17
-  promises in 32 lines, no questions, its refrain returning in turns of four,
-  four, then eight.
-
-## How it works
-
-No language model is involved anywhere. Every mark comes from a lookup or a
-rule you could check by hand.
-
-- **Sound** comes from the CMU Pronouncing Dictionary, which spells each word
-  in phonemes and marks which vowel is stressed. "Inside" is `IH2 N S AY1 D`:
-  the second syllable carries the stress. One-syllable function words (the,
-  a, you, me) are read light, the way speech says them.
-- **Rhyme** takes each line's last stressed word, carries up to two light
-  words after it, and compares everything from the stressed vowel on.
-  "Hide me" and "inside me" both come out `AY D M IY`, with different sounds
-  before the vowel, so that is a perfect rhyme. Different endings are ranked
-  on Pat Pattison's ladder: family (the final consonants are made the same
-  way: rub / dug), additive (one runs on past the other: free / freed),
-  assonance (vowel only), consonance (ending only).
-- **Altitude** is the average concreteness of a line's meaningful words, from
-  ratings people gave 37,000 words on a 1 (idea) to 5 (thing you can touch)
-  scale. "Pride" is 1.7; "knife" is 4.9. "Fingers" borrows "finger"'s rating
-  through a small set of inflection rules.
-- **Senses** come from the Lancaster Sensorimotor Norms, where people rated
-  how strongly they experience each word by sight, sound, touch, taste,
-  smell, inside the body, and through action. Those fold into Pattison's
-  seven senses; each bar is the strongest word on the line for that sense.
-- **Voice** is rules with the trigger shown: a question mark or a question's
-  opening ("where do," "do they"); "I will / I won't" for a promise; a line
-  that starts on a verb for a plea. Pronouns say who is in the line.
-- **Refrains** are whole lines that repeat, grouped into turns when they
-  repeat back to back, each with the two lines it lands on.
-- **The understory** matches the dictionary forms of the buried sentence's
-  words against the lyric's. A match right after a negation ("won't hurt")
-  is marked as said and denied.
-
-Same lyric in, same marks out, every time. Nothing typed leaves the device;
-the only network requests are the page's own files and its fonts.
-
-## Usage
-
-- **see / write**: the dark button. Write is a plain text box; see is the
-  x-ray.
-- **shape · lines · sounds**: zoom. Shape is the whole song as an altitude
-  contour beside a sense-o-gram (a spectrogram of the senses: time runs down,
-  seven bands across). Lines is every syllable's stress, the rhyme letters,
-  and a seven-band meter. Sounds spells each word the way it is said and
-  lights the rhyme sound.
-- **Tap anything.** Every dot, letter and bar has a receipt.
-- **The ground**: in write mode, type the sentence the song never says under
-  the ground line. In see mode it stays blurred until uncovered.
-- **Pages**: new page, import a text file, gravity (the words you return to
-  across pages), voice flips as a preview (she → you, I ↔ you, I → she),
-  copy as text, Markdown or ChordPro, backup and restore.
-
-To run it locally:
+## Quick start
 
 ```sh
 bash build.sh && python3 -m http.server --directory site 8000
 ```
 
-## Two homes, one source
+This needs only bash and Python 3; there is nothing to install. Open
+http://localhost:8000/. The page opens on "Spare Key", an example lyric
+written for it. Once `lexicon.txt` has loaded, each line gets an altitude
+tick and a voice mark on the left, a dot under each syllable for stress,
+and a rhyme letter and seven sense bars on the right. The page fetches its
+word lists, so it needs the server. Opened straight from disk, it shows
+plain text and the status "dictionary missing; text only".
 
-`index.html` is the only page source. It is written as a claude.ai Artifact:
-no `<html>` or `<head>`, which the Artifact host supplies. `build.sh` wraps
-it in a real document with a manifest, icons, and a service worker for the
-hosted copy.
+## Usage
 
-Understory has no accounts of its own. Where pages are kept depends on
-which copy is open:
+The mode button at the bottom left switches between write (a plain text
+box) and see (the marked-up lyric). Beside it are the zoom levels. Shape
+draws the whole song as an altitude contour next to a sense-o-gram, a heat
+map with a row per line and a column per sense. Lines shows the altitude
+ticks, each syllable's stress, the rhyme letters and the sense bars. Sounds
+respells each word the way it is said ("fingers" becomes FING·gurz) and
+lights the rhyme sound.
 
-- **ampactor.dev/understory** has no sign-in. It saves pages in the browser
-  (`localStorage`) and works offline after the first visit. Back up from the
-  pages drawer.
-- **The Artifact copy** (private, https://claude.ai/artifact/C6Rb7rK4CGtppYrJF5cCXS)
-  is the same file with `engine.js` and both word lists as its files. Opened
-  on claude.ai, it saves each viewer's pages under the Claude account they
-  are signed in with, through the Artifact's `db` and `user` capabilities,
-  so the pages follow them to any device; files save through `downloads`.
-  Republishing it means passing that URL as `url`, or a second artifact
-  appears.
+Tap any mark to open its receipt, which shows what it was computed from.
+From a word's receipt you can follow the word, which lights every use of it.
 
-## Weak spots
+In write mode, type the sentence the song never says under the ground line.
+In see mode it stays blurred until you uncover it, with the lines where its
+words surface listed below.
 
-It reads words, not songs. The stress lane shows how a line is spoken; where
-a melody puts the stress is the real prosody, and that needs a musical grid
-this doesn't have.
+The pages button opens a drawer for new pages and for importing `.txt`,
+`.md` or ChordPro files (a plain-text format for lyrics with chords). It
+shows gravity, the words you keep returning to across pages, and previews
+voice flips such as I ↔ you or she → you before applying them with an undo.
+It copies a page as plain text, Markdown or ChordPro, or saves it as a
+Markdown file. Backup and restore move every page to and from a JSON file.
 
-- **One accent.** Pronunciations are General American. If your mouth rhymes
-  "caught" and "cot," it will hear rhymes this can't.
-- **Voice is guessed.** The receipt names the word it guessed from. A
-  statement with a question inside it reads as a statement.
-- **One rating per spelling.** "Light" the lamp and "light" the weight share
-  a concreteness rating.
-- **Names and slang** fall back to a spelling guess: first syllable stressed,
-  no ratings, rhymes marked as estimated.
-- **Irony is invisible.** No word list can see a joke.
-- **Browser storage is one cleared cache from gone.** Back up.
-- Pasting a published lyric to study it is fine; committing one here is not.
+## How it works
 
-## Verification
+`engine.js` holds all the analysis and never touches the page, so it runs
+in the browser as `window.UnderstoryEngine` and in Node for the checks.
+`index.html` draws the page, fetches `lexicon.txt` and analyzes the lyric,
+then fetches `lexicon-extra.txt` and analyzes it again. Each mark carries
+the dictionary entries and ratings it came from, which become its receipt.
 
-```sh
-node test-engine.mjs      # 73 passed, 0 failed
-```
+I kept language models out of it. Every mark comes from a lookup or a rule
+a person could check by hand, and the same lyric and word lists always give
+the same marks:
 
-The Pages workflow runs the same checks before every deploy. Beyond them,
-the page has had headless-Chrome passes at 390 × 844 in light and dark: it
-loads, fills in marks when the dictionary arrives, has no horizontal scroll,
-opens receipts, renders all three zooms, re-analyzes after an edit, previews,
-applies and undoes a voice flip, keeps a new page across a reload, and throws
-no page errors.
+- **Stress** (which syllables a speaker leans on) comes from the CMU
+  Pronouncing Dictionary, which marks the stressed vowel in each word.
+- **Rhyme** compares the sounds from each line's last stressed vowel on
+  with up to four line ends before it. Pairs are ranked on Pat Pattison's
+  rhyme ladder, a scale from his songwriting book that runs from perfect
+  rhyme down to endings that share only their consonants.
+- **Altitude** is a line's average concreteness: how physical its words
+  are, as people rated them from 1 (an idea) to 5 (a thing you can touch).
+- **Senses** come from the Lancaster Sensorimotor Norms, ratings of how
+  strongly people experience a word through each sense and through
+  movement. They are folded into seven: sight, sound, touch, taste, smell,
+  body and motion.
+- **Voice, refrains and the understory** are rules over the words, and each
+  receipt names what triggered it.
 
-## Files
+[`docs/how-it-works.md`](docs/how-it-works.md) walks through each mark with
+examples. It also explains how the hosted copy keeps pages in the browser
+while a private claude.ai Artifact (a page hosted inside claude.ai), built
+from the same `index.html`, saves them to the viewer's Claude account.
 
-| | |
-|---|---|
-| `index.html` | the instrument, as an Artifact page |
-| `engine.js` | the analysis; no DOM, runs in the browser and in node |
-| `lexicon.txt`, `lexicon-extra.txt` | the word lists, one word per line |
-| `build-lexicon.py` | builds the word lists from the three datasets |
-| `test-engine.mjs` | the engine checks |
-| `build.sh`, `src/` | the hosted wrapper: head, manifest, service worker, icons |
+## Data
 
-## Rebuilding the data
+Three public datasets feed two word lists, which `build-lexicon.py` builds
+and the repo commits, so the page never fetches from the sources and keeps
+working if one moves. Full citations and licence terms are in
+[`NOTICE.md`](NOTICE.md).
+
+| Dataset | Gives | Licence |
+| --- | --- | --- |
+| CMU Pronouncing Dictionary | pronunciation and stress | BSD-style, Carnegie Mellon University |
+| Brysbaert, Warriner and Kuperman (2014) | concreteness, 1 to 5 | released with the paper; CC BY 4.0 as republished in NoRaRe |
+| Lancaster Sensorimotor Norms (Lynott et al., 2020) | the seven senses | CC BY 4.0 |
+
+`lexicon.txt` holds 55,755 words: 44,276 with a pronunciation, 37,058 with
+a concreteness rating and 36,811 with a seven-sense profile, as the build
+prints them. 25,477 have all three in their own entry, counted from the
+file's columns. Inflections kept without ratings borrow their base word's
+when the page runs. The other 80,635 pronunciations in the CMU dictionary
+(names of people and places, rare spellings) go to `lexicon-extra.txt`,
+loaded after first paint. The files are 1.3 MB and 1.2 MB, and the live
+site sends each gzipped at about 0.5 MB (measured with `curl`).
+
+A rebuild takes about 22 MB of downloads, which are not committed:
 
 ```sh
 curl -LO https://raw.githubusercontent.com/cmusphinx/cmudict/master/cmudict.dict
@@ -163,6 +115,84 @@ curl -L -o lancaster.csv https://osf.io/download/48wsc/
 python3 build-lexicon.py cmudict.dict Concreteness_ratings_Brysbaert_et_al_BRM.txt lancaster.csv .
 ```
 
-The raw downloads are not committed; the two built files are, so the
-instrument runs offline and keeps running if a source moves. Credits and
-licences are in [`NOTICE.md`](NOTICE.md).
+On 27 September 2026 this reproduced both committed files byte for byte
+(checked with `cmp`).
+
+## Project layout
+
+```text
+index.html           the page, written as a claude.ai Artifact
+engine.js            the analysis, which runs in the browser and in Node
+lexicon*.txt         the two word lists, built by build-lexicon.py
+test-engine.mjs      the engine checks
+build.sh, src/       the hosted copy: head, manifest, service worker, icons
+docs/                the long form of How it works
+```
+
+## Deploy
+
+The hosted copy is a GitHub Pages project site, served at
+https://ampactor.dev/understory/ under the organization's custom domain.
+`.github/workflows/pages.yml` runs on every push to `main` and on manual
+dispatch: `node test-engine.mjs` on Node 22, then `bash build.sh`, then a
+publish of `site/`. A failing check stops the deploy. The hosted copy has a
+service worker, a script that keeps the page working offline after the
+first visit. `build.sh` stamps its cache name with the build time, and each
+new worker deletes the older caches. The Artifact copy is republished by hand
+([`docs/how-it-works.md`](docs/how-it-works.md)).
+
+## Testing
+
+```sh
+node test-engine.mjs   # prints: 73 passed, 0 failed
+```
+
+The 73 checks compare the engine with answers known by ear. They cover each
+rung of the rhyme ladder, rhymes across light words ("hide me" / "inside
+me"), word lookups, stress, voice and tense, a three-stanza page, the
+understory surfacing under a denial, voice flips and gravity. The Pages
+workflow runs them on Node 22 before every deploy. They leave out these
+parts:
+
+- **The page.** `index.html` has no automated test. A browser pass in
+  headless Chrome at a 390 × 844 viewport, in light and dark mode, checks
+  that it loads, fills in marks once the word list arrives, has no
+  horizontal scroll, opens receipts, renders all three zooms, re-analyzes
+  after an edit, previews, applies and undoes a voice flip, keeps a new page
+  across a reload and throws no page errors. It last ran on 27 September
+  2026, from a script that is not in this repo.
+- **Build and storage.** `build-lexicon.py` has no tests, though a rebuild
+  reproduces the committed lists (see Data). Nothing checks the service
+  worker or the Artifact copy's saving to a Claude account.
+
+## Limitations
+
+It reads how a line is spoken. In a song the melody decides which syllables
+land on strong beats, and judging how well the words fit the tune (prosody)
+needs a musical grid of beats and bars, which this does not have. The other
+marks come from word lists and fixed rules, so they know one pronunciation
+per word and cannot see context such as irony.
+
+- **One pronunciation and one rating per spelling.** The build keeps the CMU
+  dictionary's first pronunciation of each word, so "read" always sounds
+  like "red". "Light" the lamp and "light" the weight share a rating.
+- **One accent.** If you say "dawn" and "don" alike, the engine still hears
+  two vowels and ranks the pair as consonance, the lowest rung.
+- **Line ends only.** Rhyme is compared between line ends, up to four lines
+  back, so rhymes inside a line are not marked.
+- **Voice is guessed.** The receipt names the word it guessed from. A
+  question inside a statement ("I asked where you go") reads as a statement.
+- **Unknown words.** A word that no dictionary entry explains, such as a new
+  name or slang, gets a spelling guess: first syllable stressed, usually no
+  ratings, and any rhyme marked as estimated.
+- **Browser storage.** On the hosted copy, clearing the site's data deletes
+  every page. Back up from the pages drawer.
+- **No published lyrics in the repo.** Lyrics are under copyright, so none
+  are committed, including the two songs the engine was built around ("When
+  You Sleep" by Cake and "I Won't Hurt You" by The West Coast Pop Art
+  Experimental Band). Results on them cannot be reproduced from here.
+
+## License
+
+No license chosen yet. The word lists carry their sources' terms, set out in
+[`NOTICE.md`](NOTICE.md).
